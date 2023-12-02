@@ -7,39 +7,41 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class AoCPuzzlePartOne {
+public class AoCPuzzlePartTwo {
     private static final String INPUT_FILE = "src/main/resources/dec2/puzzle.input";
 
     public static void main(final String[] args) {
-        final var puzzle = new AoCPuzzlePartOne();
+        final var puzzle = new AoCPuzzlePartTwo();
         puzzle.run();
     }
 
     private void run() {
-        final var totalCubes = new CubeSet(12, 13, 14);
-
         try (final var lines = Files.lines(Path.of(INPUT_FILE))) {
-            final var sumOfGameIds = new AtomicInteger(0);
+            final var sumOfPowers = new AtomicInteger(0);
             lines.forEach(line -> {
                 final var cubeSetList = readCubeSets(line);
-                var possible = true;
+                var minimumRedCubes = 0;
+                var minimumGreenCubes = 0;
+                var minimumBlueCubes = 0;
                 for (final var cubeSet : cubeSetList) {
-                    if (cubeSet.redCubes() > totalCubes.redCubes()
-                        || cubeSet.greenCubes() > totalCubes.greenCubes()
-                        || cubeSet.blueCubes() > totalCubes.blueCubes()) {
-                        possible = false;
-                        break;
+                    if (cubeSet.redCubes() > minimumRedCubes) {
+                        minimumRedCubes = cubeSet.redCubes();
+                    }
+                    if (cubeSet.greenCubes() > minimumGreenCubes) {
+                        minimumGreenCubes = cubeSet.greenCubes();
+                    }
+                    if (cubeSet.blueCubes() > minimumBlueCubes) {
+                        minimumBlueCubes = cubeSet.blueCubes();
                     }
                 }
-
-                if (possible) {
-                    final var gameId = readGameId(line);
-                    System.out.println("Game " + gameId + " is possible");
-                    sumOfGameIds.addAndGet(gameId);
-                }
+                final var powerOfCubes = minimumRedCubes
+                    * minimumGreenCubes
+                    * minimumBlueCubes;
+                System.out.println("Game " + readGameId(line) + ": Power of cubes is: " + powerOfCubes);
+                sumOfPowers.addAndGet(powerOfCubes);
 
             });
-            System.out.println("Sum of game ids: " + sumOfGameIds);
+            System.out.println("Sum of power is: " + sumOfPowers);
         } catch (final IOException e) {
             System.exit(1);
         }
@@ -117,5 +119,4 @@ public class AoCPuzzlePartOne {
     private static boolean isDigit(final char c) {
         return c >= 0x30 && c <= 0x39;
     }
-
 }
