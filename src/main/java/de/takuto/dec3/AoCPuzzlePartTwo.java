@@ -1,16 +1,17 @@
-package de.takuto.de.takuto.dec3;
+package de.takuto.dec3;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
-public class AoCPuzzlePartOne {
-
+public class AoCPuzzlePartTwo {
     private static final String INPUT_FILE = "src/main/resources/dec3/puzzle.input";
 
     public static void main(final String[] args) {
-        new AoCPuzzlePartOne().solve();
+        new AoCPuzzlePartTwo().solve();
     }
 
     public void solve() {
@@ -27,20 +28,29 @@ public class AoCPuzzlePartOne {
                 }
             }
 
-            var sumOfNumbers = 0;
+            var sumOfGearRatios = 0;
 
             // Iterate over 2D array and find symbols
             for (int i = 0; i < engineSchematic.length; i++) {
                 for (int j = 0; j < engineSchematic[i].length; j++) {
-                    if (isSymbol(engineSchematic[i][j])) {
-                        final var adjacentNumbers = adjacentNumbers(engineSchematic, i, j);
-                        System.out.println("Symbol " + engineSchematic[i][j] + " at " + i + "," + j + " has adjacent numbers: " + adjacentNumbers);
-                        sumOfNumbers += adjacentNumbers.stream().mapToInt(Integer::intValue).sum();
+                    if (!isGear(engineSchematic[i][j])) {
+                        continue;
                     }
+
+                    final var adjacentNumbers = adjacentNumbers(engineSchematic, i, j);
+                    if (adjacentNumbers.size() != 2) {
+                        continue;
+                    }
+
+                    final var firstNumber = adjacentNumbers.stream().findFirst().get();
+                    final var secondNumber = adjacentNumbers.stream().skip(1).findFirst().get();
+                    final var gearRatio = firstNumber * secondNumber;
+                    System.out.println("Symbol " + engineSchematic[i][j] + " at " + i + "," + j + " two adjacent numbers: " + adjacentNumbers + " with gear ratio: " + gearRatio);
+                    sumOfGearRatios += gearRatio;
                 }
             }
 
-            System.out.println("Sum of all adjacent numbers: " + sumOfNumbers);
+            System.out.println("Sum of all gear ratios: " + sumOfGearRatios);
 
         } catch (final IOException e) {
             System.err.println("Error reading input file: " + e.getMessage());
@@ -52,8 +62,8 @@ public class AoCPuzzlePartOne {
         return c >= 0x30 && c <= 0x39;
     }
 
-    private static boolean isSymbol(final char c) {
-        return !isDigit(c) && c != '.';
+    private static boolean isGear(final char c) {
+        return c == '*';
     }
 
     // The use of a set de-duplicates the numbers if there is a number that starts diagonal to a symbol
@@ -125,5 +135,4 @@ public class AoCPuzzlePartOne {
         final var digits = Arrays.copyOfRange(engineSchematic[x], left + 1, right);
         return Integer.parseInt(new String(digits));
     }
-
 }
